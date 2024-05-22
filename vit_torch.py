@@ -52,6 +52,7 @@ class MyMSA(nn.Module):
         )
         self.d_head = d_head
         self.softmax = nn.Softmax(dim=-1)
+        self.w_concat = nn.Linear(d, d)
 
     def forward(self, sequences):
         # Sequences has shape (N, seq_length, token_dim)
@@ -71,7 +72,16 @@ class MyMSA(nn.Module):
                 attention = self.softmax(q @ k.T / (self.d_head**0.5))
                 seq_result.append(attention @ v)
             result.append(torch.hstack(seq_result))
-        return torch.cat([torch.unsqueeze(r, dim=0) for r in result])
+            # 这里原始省略了线性层，理论上线性层的增加的优势：
+            # gpt：进一步优化和调整合并后的表示，使其更适合下游任务
+            # 实际数据：
+            # 不包含w_concat, Test accuracy: 76.62%
+            # 包含w_concat, Test accuracy: 71.32%
+            # 暂时去掉w_concat
+        # return torch.cat([torch.unsqueeze(r, dim=0) for r in result])
+        final_result = torch.cat([torch.unsqueeze(r, dim=0) for r in result])
+        # return self.w_concat(final_result)
+        return final_result
 
 
 class MyViTBlock(nn.Module):
