@@ -237,6 +237,8 @@ def main():
             optimizer.step()
 
         print(f"Epoch {epoch + 1}/{N_EPOCHS} loss: {train_loss:.2f}")
+        # 保存模型
+        torch.save(model.state_dict(), "vit_ep" + str(epoch) + ".pth")
 
     # Test loop
     with torch.no_grad():
