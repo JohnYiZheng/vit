@@ -13,11 +13,12 @@ torch.manual_seed(0)
 
 
 def patchify(images, n_patches):
+    # patchify的输出是拍平的图像patch序列
     n, c, h, w = images.shape
 
     assert h == w, "Patchify method is implemented for square images only"
-
-    patches = torch.zeros(n, n_patches**2, h * w * c // n_patches**2)
+    num_patch_pixel = c * h * w
+    patches = torch.zeros(n, n_patches**2, num_patch_pixel // n_patches**2)
     patch_size = h // n_patches
 
     for idx, image in enumerate(images):
@@ -27,7 +28,7 @@ def patchify(images, n_patches):
                     :,
                     i * patch_size : (i + 1) * patch_size,
                     j * patch_size : (j + 1) * patch_size,
-                ]
+                ]  # c, hp, wp
                 patches[idx, i * n_patches + j] = patch.flatten()
     return patches
 
